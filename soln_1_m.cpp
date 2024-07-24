@@ -1,14 +1,15 @@
 #include <algorithm>
-#include <array>
 #include <fstream>
+#include <initializer_list>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 struct City;
-static std::vector<City *> data{};
+static std::vector<City> data{};
 static std::vector<std::string> city_names{};
 static size_t city_count = 0;
 
@@ -27,6 +28,16 @@ struct City {
     sum += n;
     count += 1;
   }
+};
+
+template <class p_K> class QVector {
+public:
+  QVector(std::initializer_list<p_K *> pqK) : _pqK(pqK) {}
+  QVector() : _pqK(new std::vector<p_K *>(sizeof(p_K *), 0)) {}
+
+  p_K *operator[](size_t idx) { return _pqK[idx]; }
+
+  std::vector<p_K *> _pqK;
 };
 
 void PrintCity(const std::pair<std::string, City *> &city) {
@@ -67,44 +78,21 @@ void read_file(const std::string &file_name) {
       split_string(line, city_name, value);
 
       if (data_mmc.find(city_name) == data_mmc.end()) {
-        City *cc = new City();
+        City *cc;
         cc->set(value);
         data_mmc[city_name] = cc;
+        delete cc;
       } else {
         (data_mmc[city_name])->set(value);
       }
-
-      // std::vector<std::string>::iterator city_find =
-      //     std::find(city_names.begin(), city_names.end(), city_name);
-
-      // The city does not exist in the Data Array
-      // if (city_find == std::end(city_names)) {
-      //   City *city = new City();
-      //   city->set(value);
-      //   data.push_back(city);
-      //
-      // } else { // The city is IN the data array
-      //   bool city_in_place = false;
-      //   size_t k = 0;
-      //
-      //   for (k = 0; k < data.size(); k++) {
-      //     if (data[k]->name == city_name) {
-      //       city_in_place = true;
-      //       data[k]->set(city_name, value);
-      //     }
-      //   }
-      // }
     }
   }
 }
 
-static const std::string file_name = "../measurements/my_brc.txt";
+static const std::string file_name = "measurements.txt";
 
 int main(int argc, char *argv[]) {
   read_file(file_name);
-
-  // std::for_each(data.begin(), data.end(),
-  //               [](const City* cc) { PrintCity(cc); });
   PrintMap(data_mmc);
   return 0;
 }
